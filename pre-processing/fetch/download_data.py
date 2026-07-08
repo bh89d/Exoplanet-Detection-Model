@@ -3,8 +3,6 @@ import requests
 import pandas as pd
 from io import StringIO
 from pathlib import Path
-import numpy as np
-import astropy
 import warnings
 from astropy.time import TimeDeltaMissingUnitWarning
 
@@ -68,7 +66,7 @@ def download_lightcurves(stars: list[str], mission: str, author: str, exptime: i
               f"{star}_"
               f"{product.mission[0].replace(' ', '_')}.fits"
           )
-          
+
           filepath = star_folder / filename
           lc.to_fits(filepath) 
 
@@ -76,6 +74,3 @@ def download_lightcurves(stars: list[str], mission: str, author: str, exptime: i
           print(f"Failed to download {product}: {e}")
         
       print(f"Finished {star}")
-      
-stars = get_star_list("Kepler", 10)
-download_lightcurves(stars=stars, mission= "Kepler", author= "Kepler", exptime= 1800 , savepath= "../data/raw")
