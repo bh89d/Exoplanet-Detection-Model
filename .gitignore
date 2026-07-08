@@ -1,0 +1,10 @@
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# Downloaded astronomy data
+pre-processing/data/
+
+# Jupyter
+.ipynb_checkpoints/
