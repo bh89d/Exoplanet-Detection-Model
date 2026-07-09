@@ -1,14 +1,4 @@
-import lightkurve as lk
+from preprocessing.read_fits import read_fits
+from pathlib import Path
 
-search = lk.search_lightcurve(
-    "Kepler-10",
-    mission="Kepler",
-    author="Kepler",
-    exptime=1800
-)
-
-print(search)
-
-lc = search[0].download()
-
-print(lc)
+print(read_fits(Path("./data/raw/Kepler-135/Kepler-135_Kepler_Quarter_00.fits")))
