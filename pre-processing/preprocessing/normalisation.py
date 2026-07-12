@@ -3,13 +3,12 @@ from data_models import LightCurveData
 
 def normalize_flux(data: LightCurveData) -> LightCurveData:
   
+  median_flux = np.median(data.flux)
+    
   if median_flux == 0:
     raise ValueError(
         f"Median flux is zero for {data.target_id}"
     )
-
-    
-  median_flux = np.median(data.flux)
   
   normalised_flux = data.flux / median_flux
   

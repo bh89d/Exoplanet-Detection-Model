@@ -10,7 +10,7 @@ def apply_mask(data: LightCurveData, mask: np.ndarray) -> LightCurveData:
     
     target_id=data.target_id,
     mission=data.mission,
-    quarter=data.mission,
+    quarter=data.quarter,
     file_path=data.file_path
   )
 
