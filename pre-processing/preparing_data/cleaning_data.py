@@ -1,4 +1,4 @@
-from preprocessing.data_models import LightCurveData
+from preparing_data.data_models import LightCurveData
 import numpy as np
 
 def apply_mask(data: LightCurveData, mask: np.ndarray) -> LightCurveData:
@@ -57,7 +57,7 @@ def remove_duplicates(data: LightCurveData) -> LightCurveData:
   
   return apply_mask(data=data, mask=mask)
 
-def clean_data(data: LightCurveData) -> LightCurveData:
+def clean_data(data: LightCurveData):
   
   original_len = len(data.time)
   

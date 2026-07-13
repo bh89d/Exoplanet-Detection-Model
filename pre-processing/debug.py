@@ -1,5 +1,5 @@
-from preprocessing.read_fits import read_fits
-from preprocessing.cleaning_data import clean_data
+from preparing_data.read_fits import read_fits
+from preparing_data.cleaning_data import clean_data
 from filtering.data_filters import mad_filter
 from pathlib import Path
 

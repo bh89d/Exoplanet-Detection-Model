@@ -1,5 +1,5 @@
 import numpy as np
-from preprocessing.data_models import LightCurveData
+from preparing_data.data_models import LightCurveData
 
 def mad_filter(data: LightCurveData, threshold: float = 7.0, replacement_window: int = 5):
   flux = data.flux.copy()
@@ -50,8 +50,7 @@ def mad_filter(data: LightCurveData, threshold: float = 7.0, replacement_window:
     "outlier_indices" : outlier_indices.tolist()
   }
   
-  return (
-      LightCurveData(
+  filtered_data = LightCurveData(
           time=data.time,
           flux=flux,
           flux_error=data.flux_error,
@@ -62,6 +61,6 @@ def mad_filter(data: LightCurveData, threshold: float = 7.0, replacement_window:
           quarter=data.quarter,
 
           file_path=data.file_path,
-      ),
-      stats,      
-  )
+      )
+  
+  return filtered_data, stats  

@@ -1,5 +1,5 @@
 import numpy as np
-from preprocessing.data_models import LightCurveData
+from preparing_data.data_models import LightCurveData
 
 def interpolate_gaps(data: LightCurveData, 
                      max_missing_points: int = 3) -> LightCurveData:

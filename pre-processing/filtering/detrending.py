@@ -24,24 +24,11 @@ def detrend_flux(data: LightCurveData, window_length: int=401, polyorder: int = 
   
   detrended_flux = (data.flux/trend)
   
-  stats = {
-    "trend_min":
-        float(np.min(trend)),
-
-    "trend_max":
-        float(np.max(trend)),
-
-    "trend_mean":
-        float(np.mean(trend)),
-  }
-  
-  return (
-    LightCurveData(
+  return LightCurveData(
         time=data.time,
         flux=detrended_flux,
         flux_error=(
-            data.flux_error
-            / trend
+            data.flux_error / trend
         ),
         quality=data.quality,
 
@@ -50,6 +37,5 @@ def detrend_flux(data: LightCurveData, window_length: int=401, polyorder: int = 
         quarter=data.quarter,
 
         file_path=data.file_path,
-    ),
-    stats
-  )
+    )
+
