@@ -1,5 +1,5 @@
 import numpy as np
-from preparing_data.data_models import LightCurveData
+from common.data_models import LightCurveData
 
 def mad_filter(data: LightCurveData, threshold: float = 7.0, replacement_window: int = 5):
   flux = data.flux.copy()

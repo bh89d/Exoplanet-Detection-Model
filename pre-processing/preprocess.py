@@ -4,7 +4,7 @@ import numpy as np
 
 from preparing_data.read_fits import read_fits
 from preparing_data.cleaning_data import clean_data
-from preparing_data.data_models import LightCurveData
+from common.data_models import LightCurveData
 
 from filtering.filter_data import apply_all_filters
 

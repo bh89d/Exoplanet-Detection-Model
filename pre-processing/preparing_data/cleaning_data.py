@@ -1,4 +1,4 @@
-from preparing_data.data_models import LightCurveData
+from common.data_models import LightCurveData
 import numpy as np
 
 def apply_mask(data: LightCurveData, mask: np.ndarray) -> LightCurveData:

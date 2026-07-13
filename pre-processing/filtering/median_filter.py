@@ -1,5 +1,5 @@
 from scipy.signal import medfilt
-from preparing_data.data_models import LightCurveData
+from common.data_models import LightCurveData
 import numpy as np
 
 def median_filter(data: LightCurveData, kernel_size: int=7):

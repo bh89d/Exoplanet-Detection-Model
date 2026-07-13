@@ -1,5 +1,5 @@
 from scipy.signal import savgol_filter
-from preparing_data.data_models import LightCurveData
+from common.data_models import LightCurveData
 
 def apply_savgol_filter(data: LightCurveData, window_length: int = 11, polyorder: int = 2):
   

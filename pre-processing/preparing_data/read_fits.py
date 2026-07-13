@@ -1,5 +1,5 @@
 from astropy.io import fits
-from preparing_data.data_models import LightCurveData
+from common.data_models import LightCurveData
 from pathlib import Path
 
 def read_fits(path: Path) -> LightCurveData:

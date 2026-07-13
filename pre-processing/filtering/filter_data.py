@@ -2,7 +2,7 @@ from filtering.mad_filter import mad_filter
 from filtering.detrending import detrend_flux
 from filtering.median_filter import median_filter
 from filtering.savgol_filter import apply_savgol_filter
-from preparing_data.data_models import LightCurveData
+from common.data_models import LightCurveData
 
 
 def apply_all_filters(data: LightCurveData):

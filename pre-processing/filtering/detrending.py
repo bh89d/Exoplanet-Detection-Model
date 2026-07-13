@@ -1,6 +1,6 @@
 import numpy as np
 from scipy.signal import savgol_filter
-from preparing_data.data_models import LightCurveData
+from common.data_models import LightCurveData
 
 def detrend_flux(data: LightCurveData, window_length: int=401, polyorder: int = 2):
   
