@@ -4,7 +4,21 @@ from filtering.median_filter import median_filter
 from filtering.savgol_filter import apply_savgol_filter
 from preparing_data.data_models import LightCurveData
 
-def filter_data(data: LightCurveData):
+
+def apply_all_filters(data: LightCurveData):
+  
+  mad_filtered_data, stat = mad_filter(data)
+
+  detrended = detrend_flux(mad_filtered_data)
+
+  medianed = median_filter(detrended)
+
+  smoothed = apply_savgol_filter(data=medianed)
+
+  return smoothed
+  
+  
+def filter_data_user(data: LightCurveData):
   print("""
         Apply Filters :\n
         1. Apply MAD Filter\n

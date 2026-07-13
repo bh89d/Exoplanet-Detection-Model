@@ -1,12 +1,20 @@
-from preparing_data.read_fits import read_fits
-from preparing_data.cleaning_data import clean_data
-from filtering.data_filters import mad_filter
-from pathlib import Path
+from fetch.download_data import get_positive_star_list
+from fetch.download_data import run_query
+import lightkurve as lk
 
-file = read_fits(Path("./data/raw/Kepler-135/Kepler-135_Kepler_Quarter_02.fits"))
+query = """
+SELECT DISTINCT hostname
+FROM ps
+WHERE disc_facility = 'Kepler'
+"""
 
-file, _ = clean_data(file)
+df = run_query(query)
 
-data, stat = mad_filter(file, threshold=3)
+print(len(df))
+print(df.head())
+print(df["hostname"].nunique())
 
-print(stat)
+positive = get_positive_star_list(1000)
+
+print(len(positive))
+print(positive[:10])

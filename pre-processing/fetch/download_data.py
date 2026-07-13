@@ -28,16 +28,34 @@ def run_query(query: str) -> pd.DataFrame:
 
     return pd.read_csv(StringIO(response.text))
 
-def get_star_list(mission: str, limit: int):
+def get_positive_star_list(limit: int):
 
     query = f"""
-      SELECT TOP {limit} hostname
-      FROM ps WHERE disc_facility = '{mission}'
+        SELECT DISTINCT hostname
+            hostname
+        FROM ps
+        WHERE disc_facility = 'Kepler'
     """
 
     df = run_query(query)
 
-    return df["hostname"].tolist()
+    return sorted(df["hostname"].unique().tolist())
+
+def get_negative_star_list(limit: int):
+
+    query = f"""
+        SELECT TOP {limit}
+            kepid
+        FROM keplerstellar
+        WHERE nkoi = 0
+    """
+
+    df = run_query(query)
+
+    return (
+        "KIC "
+        + df["kepid"].astype(str)
+    ).tolist()
 
 def download_lightcurves(stars: list[str], mission: str, author: str, exptime: int, savepath: str):
     
@@ -47,7 +65,7 @@ def download_lightcurves(stars: list[str], mission: str, author: str, exptime: i
 
       lc_search = lk.search_lightcurve(target=star, mission=mission, author=author, exptime= exptime)
 
-      star_folder = Path(savepath) / star
+      star_folder = Path(savepath) / (star.replace(" ", "_"))
       star_folder.mkdir(parents=True, exist_ok=True)
 
       fits_files = list(star_folder.glob("*.fits"))
@@ -63,7 +81,7 @@ def download_lightcurves(stars: list[str], mission: str, author: str, exptime: i
           lc = product.download()
 
           filename = (
-              f"{star}_"
+              f"{star.replace(" ", "_")}_"
               f"{product.mission[0].replace(' ', '_')}.fits"
           )
 

@@ -61,27 +61,18 @@ def clean_data(data: LightCurveData):
   
   original_len = len(data.time)
   
-  print("Cleaning Data...")
-  print("Removing NaN rows...")
-  
   current_len = len(data.time)
   
   data = remove_nan_rows(data=data)
   nan_removed = current_len - len(data.time)
   
-  print("Removing inf rows...")
-  
   current_len = len(data.time)
   data = remove_inf_values(data=data)
   inf_removed = current_len - len(data.time)
   
-  print("Removing Bad Flags...")
-  
   current_len = len(data.time)
   data = remove_bad_flags(data=data)
   bad_flags_removed = current_len - len(data.time)
-  
-  print("Removing Duplicates...")
   
   current_len = len(data.time)
   data = remove_duplicates(data=data)
@@ -95,17 +86,5 @@ def clean_data(data: LightCurveData):
     "bad_flags_removed" : bad_flags_removed,
     "duplicates_removed" : duplicates_removed
   }
-  
-  print(f"""
-        Cleaning Report
-        -------------------------
-        Original Points : {original_len}
-        Final Points    : {current_len}
-
-        NaN Removed         : {nan_removed}
-        Inf Removed         : {inf_removed}
-        Bad Flags Removed   : {bad_flags_removed}
-        Duplicates Removed  : {duplicates_removed}
-  """)
   
   return data, stats
