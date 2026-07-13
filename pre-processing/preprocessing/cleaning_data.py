@@ -87,6 +87,15 @@ def clean_data(data: LightCurveData) -> LightCurveData:
   data = remove_duplicates(data=data)
   duplicates_removed = current_len - len(data.time)
   
+  stats = {
+    "original_points" : original_len,
+    "final_points" : current_len,
+    "nan_removed" : nan_removed,
+    "inf_removed" : inf_removed,
+    "bad_flags_removed" : bad_flags_removed,
+    "duplicates_removed" : duplicates_removed
+  }
+  
   print(f"""
         Cleaning Report
         -------------------------
@@ -99,4 +108,4 @@ def clean_data(data: LightCurveData) -> LightCurveData:
         Duplicates Removed  : {duplicates_removed}
   """)
   
-  return data
+  return data, stats
