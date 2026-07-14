@@ -1,6 +1,16 @@
 from pathlib import Path
 
+from pathlib import Path
+import sys
+
+ROOT = Path(__file__).resolve().parent.parent
+sys.path.insert(0, str(ROOT))
+
+from datetime import datetime
+
 import numpy as np
+
+import pandas as pd
 
 from preparing_data.read_fits import read_fits
 from preparing_data.cleaning_data import clean_data
@@ -24,23 +34,25 @@ def save_refined_curve(data: LightCurveData, save_path: Path):
   
   np.savez_compressed(
     save_path,
-    
+
     time=data.time,
     flux=data.flux,
     flux_error=data.flux_error,
     quality=data.quality,
-    
+
     target_id=data.target_id,
     mission=data.mission,
     quarter=data.quarter,
-    file_path=str(data.file_path),
-    
-    original_star = data.target_id,
-    pipeline_version = 1,
-    processed = True
-    
-    if data.file_path is not None
-    else ""
+
+    file_path=(
+        str(data.file_path)
+        if data.file_path is not None
+        else ""
+    ),
+
+    original_star=data.target_id,
+    pipeline_version=1,
+    processed=True
   )
   
 def preprocess_data(raw_root: Path, refined_root: Path):
@@ -56,6 +68,8 @@ def preprocess_data(raw_root: Path, refined_root: Path):
   bad_flags_removed = 0
   duplicates_removed = 0
   
+  start = datetime.now()
+  
   star_folders = [
     folder
     for folder in raw_root.iterdir()
@@ -66,8 +80,7 @@ def preprocess_data(raw_root: Path, refined_root: Path):
     
     total_stars += 1
     
-    print(f"\nProcessing"
-          f"{star_folder.name}")
+    print(f"\nProcessing {star_folder.name}")
     
     
     refined_star_folder = (
@@ -116,6 +129,43 @@ def preprocess_data(raw_root: Path, refined_root: Path):
               f"{fits_file.name}")
         
         print(e)
+        
+  log_path = Path("./pre-processing/data/metadata/logs.csv")
+
+  try:
+      old_logs = pd.read_csv(log_path)
+      iteration = len(old_logs)
+
+  except (
+      FileNotFoundError,
+      pd.errors.EmptyDataError
+  ):
+      iteration = 0
+      
+  elapsed = (datetime.now() - start).total_seconds()
+        
+  logs = {
+    "timestamp" : datetime.now(),
+    "processing_seconds" : elapsed,
+    "original_points" : original_len,
+    "final_points" : current_len,
+    "nan_removed" : nan_removed,
+    "bad_flags_removed" : bad_flags_removed,
+    "inf_removed" : inf_removed,
+    "duplicates_removed" : duplicates_removed,
+    "total_stars" : total_stars,
+    "total_files" : total_files,
+    "successful_files" : successful_files,
+    "failed_files" : failed_files,
+    "iteration" : iteration
+  }
+  
+  logs_df = pd.DataFrame([logs])
+  
+  logs_df.to_csv("./pre-processing/data/metadata/logs.csv",
+                 mode="a",
+                 header=not log_path.exists(),
+                 index=False)
 
   print(f"""
   Cleaning Report
@@ -135,4 +185,6 @@ def preprocess_data(raw_root: Path, refined_root: Path):
   print(f"Successful Files : {successful_files}")
   print(f"Failed Files     : {failed_files}")
   
-preprocess_data(Path("./data/raw"), Path("./data/refined"))
+preprocess_data(Path("./pre-processing/data/raw/positive"), Path("./pre-processing/data/refined/positive"))
+
+preprocess_data(Path("./pre-processing/data/raw/negative"), Path("./pre-processing/data/refined/negative"))

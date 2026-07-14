@@ -78,6 +78,8 @@ def clean_data(data: LightCurveData):
   data = remove_duplicates(data=data)
   duplicates_removed = current_len - len(data.time)
   
+  current_len = len(data.time)
+  
   stats = {
     "original_points" : original_len,
     "final_points" : current_len,
