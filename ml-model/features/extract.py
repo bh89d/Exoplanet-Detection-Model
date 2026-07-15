@@ -1,7 +1,7 @@
-from statistical import extract_statistical_features
-from transit import extract_transit_features
-from periodicity import extract_periodicity_features
-from frequency import extract_frequency_features
+from features.statistical import extract_statistical_features
+from features.transit import extract_transit_features
+from features.periodicity import extract_periodicity_features
+from features.frequency import extract_frequency_features
 from common.data_models import LightCurveData
 
 def extract_features(data: LightCurveData) -> dict:

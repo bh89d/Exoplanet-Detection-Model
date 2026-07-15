@@ -7,7 +7,7 @@ def extract_transit_features(data: LightCurveData) -> dict:
   
   deepest_dip = 1 - np.min(flux)
   
-  threshold = np.median(flux) - np.std(flux) * 3
+  threshold = np.median(flux) - np.std(flux) * 2
   
   significant_dips = np.sum(
       flux < threshold
