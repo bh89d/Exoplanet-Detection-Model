@@ -6,7 +6,7 @@ sys.path.insert(0, str(ROOT))
 
 import numpy as np
 import pandas as pd
-from sklearn.model_selection import (GroupShuffleSplit, GroupKFold)
+from sklearn.model_selection import (GroupKFold, RandomizedSearchCV)
 from sklearn.metrics import (
   classification_report,
   confusion_matrix,
@@ -27,19 +27,45 @@ y = features_df["label"]
 
 gkf = GroupKFold(n_splits=5)
 
-auc_scores = []
+all_y_pred = []
+all_y_prob = []
+all_y_test = []
 
-gss = GroupShuffleSplit(
-  n_splits= 1,
-  test_size= 0.2 ,
+xgb_base = XGBClassifier(
+  objective = "binary:logistic",
+  random_state = 42,
+  eval_metric = "logloss"
+)
+
+"""
+param_grid = {
+  "n_estimators": [100, 200, 300, 500],
+  "max_depth": [3, 4, 5, 6, 8],
+  "learning_rate": [0.01, 0.03, 0.05, 0.1],
+
+  "subsample": [0.6, 0.8, 1.0],
+  "colsample_bytree": [0.6, 0.8, 1.0],
+
+  "min_child_weight": [1, 3, 5, 7],
+
+  "gamma": [0, 0.1, 0.3, 1],
+
+  "reg_alpha": [0, 0.01, 0.1],
+  "reg_lambda": [1, 1.5, 2]
+}
+
+
+search_param = RandomizedSearchCV(
+  estimator= xgb_base,
+  param_distributions= param_grid,
+  n_iter= 200,
+  scoring= "roc_auc",
+  cv = list(gkf.split(X, y, groups)),
+  verbose= 2,
+  n_jobs= -1,
   random_state= 42
 )
-
-train_idx, test_idx = next(
-  gss.split(
-    X, y, groups
-  )
-)
+"""
 
 for fold, (train_idx, test_idx) in enumerate(
   gkf.split(X, y, groups),
@@ -54,13 +80,17 @@ for fold, (train_idx, test_idx) in enumerate(
 
   xg_model = XGBClassifier(
     objective="binary:logistic",
-    n_estimators = 300,
-    max_depth = 6,
+    n_estimators = 100,
+    max_depth = 3,
     learning_rate = 0.05,
-    subsample = 0.8,
-    colsample_bytree = 0.8,
+    subsample = 0.6,
+    colsample_bytree = 0.6,
     random_state = 42,
-    eval_metric = "logloss"
+    eval_metric = "logloss",
+    reg_lambda = 1,
+    reg_alpha = 0.1,
+    min_child_weight = 5,
+    gamma = 0.3
   )
 
   xg_model.fit(X_train, y_train)
@@ -69,27 +99,34 @@ for fold, (train_idx, test_idx) in enumerate(
 
   y_prob = xg_model.predict_proba(X_test)[:, 1]
   
-  auc = roc_auc_score(
-    y_test, y_prob
-  )
+  all_y_test.extend(y_test)
+  all_y_pred.extend(y_pred)
+  all_y_prob.extend(y_prob)
   
-  auc_scores.append(auc)
-  
-  print(
-    f"Fold {fold}: {auc:.4f}"
-)
-
-print("Mean ROC AUC : ", np.mean(auc_scores))
-
-print("std ROC AUC : ", np.std(auc_scores))
 
 """
 
-print("Accuracy : ", accuracy_score(y_test, y_pred))
+print("\nStarting Hyperparameter Search...\n")
 
-print(classification_report(y_test, y_pred))
+search_param.fit(
+  X, y, groups=groups
+)
 
-print(confusion_matrix(y_test, y_pred))
+print("Best ROC AUC : ",search_param.best_score_)
+
+print("Best Parameters:")
+
+print(search_param.best_params_)
+
+"""
+
+print("ROC AUC : ", roc_auc_score(all_y_test, all_y_prob))
+
+print("Accuracy : ", accuracy_score(all_y_test, all_y_pred))
+
+print(classification_report(all_y_test, all_y_pred))
+
+print(confusion_matrix(all_y_test, all_y_pred))
 
 importance = pd.DataFrame({
     "feature": X.columns,
@@ -100,5 +137,3 @@ importance = pd.DataFrame({
 )
 
 print(importance)
-
-"""
