@@ -53,5 +53,6 @@ def extract_transit_features(data: LightCurveData) -> dict:
     "num_dip_events" : num_dip_events,
     "mean_dip_depth" : mean_dip_depth,
     "max_dip_duration" : max_dip_duration,
-    "dip_fraction" : dip_fraction
+    "dip_fraction" : dip_fraction,
+    "transit_depth_ppm" : deepest_dip * 1e6
   }

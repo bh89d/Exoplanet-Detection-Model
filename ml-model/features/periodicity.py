@@ -11,14 +11,19 @@ def extract_periodicity_features(data: LightCurveData) -> dict:
   
   max_power = max(power)
   
-  max_power_idx = np.where(power == max_power)[0][0]
+  max_power_idx = np.argmax(power)
   
-  best_period = 1/frequency[max_power_idx]
+  best_frequency = frequency[max_power_idx]
+
+  if best_frequency == 0:
+      best_period = np.inf
+  else:
+      best_period = 1 / best_frequency
   
   return {
     "best_period" : best_period,
     "max_power" : max_power,
-    "periodicity_strength" : max_power / np.mean(power) 
+    "periodicity_strength" : (max_power - np.mean(power)) / np.std(power) 
   }
   
   
