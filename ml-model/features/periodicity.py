@@ -68,11 +68,11 @@ def extract_periodicity_features(data: LightCurveData) -> dict:
 
   n = min(len(left),len(right))
 
-  phase_symmetry = np.mean(np.abs(left[:n]-right[:n]))
+  phase_symmetry = (np.mean(np.abs(left[:n]-right[:n])) if n != 0 else 0)
   
   phase_noise = np.median(np.abs(phase_flux - np.median(phase_flux)))
   
-  phase_transit_snr = phase_deepest_dip / phase_noise
+  phase_transit_snr = ((phase_deepest_dip / phase_noise) if phase_noise !=0 else 0)
 
     
   return {

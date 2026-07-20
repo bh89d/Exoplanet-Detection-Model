@@ -5,6 +5,7 @@ __pycache__/
 
 # Downloaded astronomy data
 pre-processing/data/
+*.csv
 
 # Jupyter
 .ipynb_checkpoints/

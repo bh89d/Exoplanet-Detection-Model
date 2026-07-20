@@ -80,17 +80,17 @@ for fold, (train_idx, test_idx) in enumerate(
 
   xg_model = XGBClassifier(
     objective="binary:logistic",
-    n_estimators = 100,
-    max_depth = 3,
-    learning_rate = 0.05,
+    n_estimators = 300,
+    max_depth = 4,
+    learning_rate = 0.03,
     subsample = 0.6,
     colsample_bytree = 0.6,
     random_state = 42,
     eval_metric = "logloss",
     reg_lambda = 1,
-    reg_alpha = 0.1,
-    min_child_weight = 5,
-    gamma = 0.3
+    reg_alpha = 0,
+    min_child_weight = 3,
+    gamma = 0.1
   )
 
   xg_model.fit(X_train, y_train)
@@ -102,10 +102,8 @@ for fold, (train_idx, test_idx) in enumerate(
   all_y_test.extend(y_test)
   all_y_pred.extend(y_pred)
   all_y_prob.extend(y_prob)
-  
 
 """
-
 print("\nStarting Hyperparameter Search...\n")
 
 search_param.fit(
@@ -136,4 +134,4 @@ importance = pd.DataFrame({
     ascending=False
 )
 
-print(importance)
+print(importance[importance.importance > 0])

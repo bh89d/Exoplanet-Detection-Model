@@ -117,9 +117,15 @@ def extract_transit_features(data: LightCurveData) -> dict:
     dip_depths.append(depth)
     dip_durations.append(duration)
     
-  depth_std = np.std(dip_depths)
+  if len(dip_depths) > 0:
+    
+    depth_std = np.std(dip_depths)
   
-  depth_mean = np.mean(dip_depths)
+    depth_mean = np.mean(dip_depths)
+  else:
+    depth_std = 0
+    
+    depth_mean = 0
 
   depth_cv = (
       depth_std / depth_mean
@@ -127,15 +133,23 @@ def extract_transit_features(data: LightCurveData) -> dict:
       else 0
   )
   
-  duration_std = np.std(dip_durations)
+  if len(dip_durations) > 0:
   
-  duration_mean = np.mean(dip_durations)
+    duration_std = np.std(dip_durations)
+  
+    duration_mean = np.mean(dip_durations)
 
-  duration_cv = (
-    duration_std / duration_mean
-    if duration_mean > 0
-    else 0
-  )
+    duration_cv = (
+      duration_std / duration_mean
+      if duration_mean > 0
+      else 0
+    )
+    
+  else:
+    
+    duration_std = 0
+    duration_mean = 0
+    duration_cv = 0
   
   deepest_dip = 1 - np.min(flux)
   
@@ -216,7 +230,10 @@ def extract_transit_features(data: LightCurveData) -> dict:
   
   acf_std = np.std(acf)
   
-  v_shape_score = deepest_dip / max_dip_duration
+  if max_dip_duration > 0:
+    v_shape_score = (deepest_dip / max_dip_duration)
+  else:
+    v_shape_score = 0
   
   for dip in dip_segments:
     
@@ -236,7 +253,10 @@ def extract_transit_features(data: LightCurveData) -> dict:
     
     egress_duration = len(right)
     
-    ingress_egress_ratio = min(ingress_duration, egress_duration) / max(egress_duration, ingress_duration)
+    if max(egress_duration, ingress_duration) == 0:
+      ingress_egress_ratio = 0
+    else:
+      ingress_egress_ratio = min(ingress_duration, egress_duration) / max(egress_duration, ingress_duration)
     
     ingress_egress_ratios.append(ingress_egress_ratio)
     
@@ -255,19 +275,33 @@ def extract_transit_features(data: LightCurveData) -> dict:
       
       flatness_scores.append(flatness)
       
-  mean_bottom_flatness = np.mean(flatness_scores)
+  mean_bottom_flatness = (np.mean(flatness_scores) if len(flatness_scores) > 0 else 0)
   
-  mean_ingress_egress_ratio = np.mean(ingress_egress_ratios)
+  if len(ingress_egress_ratios)>0:
+    mean_ingress_egress_ratio = np.mean(ingress_egress_ratios)
+    
+    min_ingress_egress_ratio = np.min(ingress_egress_ratios)
+    
+    std_ingress_egress_ratio = np.std(ingress_egress_ratios)
+  else:
+    mean_ingress_egress_ratio = 0
+    
+    min_ingress_egress_ratio = 0
+    
+    std_ingress_egress_ratio = 0  
   
-  min_ingress_egress_ratio = np.min(ingress_egress_ratios)
-  
-  std_ingress_egress_ratio = np.std(ingress_egress_ratios)
-  
-  mean_dip_area = np.mean(dip_areas)
-  
-  max_dip_area = np.max(dip_areas)
-  
-  std_dip_area = np.std(dip_areas)
+  if len(dip_areas)>0:
+    mean_dip_area = np.mean(dip_areas)
+    
+    max_dip_area = np.max(dip_areas)
+    
+    std_dip_area = np.std(dip_areas)
+  else:
+    mean_dip_area = 0
+    
+    max_dip_area = 0
+    
+    std_dip_area = 0
       
   return {
     "deepest_dip" : deepest_dip,
