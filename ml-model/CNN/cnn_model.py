@@ -107,7 +107,7 @@ class ExoplanetCNN(nn.Module):
 
 exoplanet_cnn_1 = ExoplanetCNN()
 
-device = torch.device("cude" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
 exoplanet_cnn_1 = exoplanet_cnn_1.to(device)
 
@@ -115,10 +115,3 @@ loss = nn.BCEWithLogitsLoss()
 
 optimizer = torch.optim.Adam(exoplanet_cnn_1.parameters(), lr = 0.001)
 
-x, y = next(iter(train_dataloader))
-
-x = x.to(device)
-
-output = exoplanet_cnn_1(x)
-
-print(output.shape)
