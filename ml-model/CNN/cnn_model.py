@@ -4,6 +4,8 @@ from torch.utils.data import Dataset, DataLoader
 import torch.nn as nn
 import pandas as pd
 from sklearn.model_selection import GroupShuffleSplit
+import time
+from tqdm import tqdm
 
 metadata = pd.read_csv("data/ml/features/metadata.csv")
 
@@ -33,7 +35,7 @@ train_df = train_split
 
 SEQ_LEN = 4096
 BATCH_SIZE = 64
-EPOCHS = 1000
+EPOCHS = 10
 
 class LightCurveDataset(Dataset):
   
@@ -70,8 +72,8 @@ validation_dataset = LightCurveDataset(validation_df)
 test_dataset = LightCurveDataset(test_df)
 
 train_dataloader = DataLoader(train_dataset, batch_size=BATCH_SIZE, shuffle=True)
-validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=True)
-test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle= True)
+validation_dataloader = DataLoader(validation_dataset, batch_size=BATCH_SIZE, shuffle=False)
+test_dataloader = DataLoader(test_dataset, batch_size=BATCH_SIZE, shuffle= False)
 
 class ExoplanetCNN(nn.Module):
   
@@ -115,3 +117,135 @@ loss = nn.BCEWithLogitsLoss()
 
 optimizer = torch.optim.Adam(exoplanet_cnn_1.parameters(), lr = 0.001)
 
+for epoch in range(EPOCHS):
+  epoch_start = time.perf_counter()
+  
+  #Training
+  exoplanet_cnn_1.train()
+  
+  train_loss = 0.0
+  
+  train_start = time.perf_counter()
+  
+  train_bar = tqdm(
+    train_dataloader,
+    desc = f"Epoch {epoch + 1}/{EPOCHS} [Train]"
+  )
+  
+  for flux, labels in train_bar:
+    
+    flux = flux.to(device)
+    labels = labels.to(device)
+    
+    optimizer.zero_grad()
+    
+    outputs = exoplanet_cnn_1(flux)
+    
+    batch_loss = loss(outputs, labels)
+    
+    batch_loss.backward()
+    
+    optimizer.step()
+    
+    train_loss += batch_loss.item()
+    
+    train_bar.set_postfix(
+      loss = f"{batch_loss.item():.4f}"
+    )
+    
+  train_loss /= len(train_dataloader)
+  
+  train_time = time.perf_counter() - train_start
+
+  #Validation
+  
+  exoplanet_cnn_1.eval()
+  
+  validation_loss = 0.0
+  
+  validation_start = time.perf_counter()
+  
+  validation_bar = tqdm(
+    validation_dataloader,
+    desc=f"Epoch {epoch+1}/{EPOCHS} [Validation]"
+  )
+  
+  with torch.no_grad():
+    
+    for flux, labels in validation_bar:
+      
+      flux = flux.to(device)
+      labels = labels.to(device)
+      
+      outputs = exoplanet_cnn_1(flux)
+      
+      batch_loss = loss(outputs, labels)
+      
+      validation_loss += batch_loss.item()
+      
+      validation_bar.set_postfix(
+        loss = f"{batch_loss.item():.4f}"
+      )
+      
+  validation_loss /= len(validation_dataloader)
+  
+  validation_time = time.perf_counter() - validation_start
+  
+  epoch_time = time.perf_counter() - validation_start
+  
+  #epoch timing
+  
+  epoch_time = time.perf_counter() - epoch_start
+  
+  print(f"\nEpoch {epoch+1}/{EPOCHS}")
+  
+  print(f"Train Loss : {train_loss:.4f}")
+  
+  print(f"Validation Loss : {validation_loss:.4f}")
+  
+  print(f"Train Time : {train_time:.2f}")
+  
+  print(f"Validation Time : {validation_time:.2f}")
+  
+  print(f"Total Epoch Time : {epoch_time:.2f}")
+  
+  
+print("/n Starting Test")
+
+exoplanet_cnn_1.eval()
+
+test_loss = 0.0
+
+test_start = time.perf_counter()
+
+test_bar = tqdm(test_dataloader, desc = "Testing")
+
+with torch.no_grad():
+  
+  for flux, labels in test_bar:
+    
+    flux = flux.to(device)
+    
+    labels = labels.to(device)
+    
+    outputs = exoplanet_cnn_1(flux)
+    
+    batch_loss = loss(outputs, labels)
+    
+    test_loss += batch_loss.item()
+    
+    test_bar.set_postfix(
+      loss = f"{batch_loss.item():.4f}"
+    )
+    
+test_loss /= len(test_dataloader)
+
+test_time = time.perf_counter() - test_start
+
+print("\n Test Results:")
+
+print(f"Test Loss : {test_loss:.4f}")
+
+print(f"Test Time : {test_time:.4f}")
+
+print(device)
